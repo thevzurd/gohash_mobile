@@ -1,0 +1,57 @@
+group 'com.example.gohash_mobile'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    ext.kotlin_version = '1.2.71'
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        jcenter()
+        // FIXME workaround issue https://github.com/golang/go/issues/25184
+        // this is used to include the mobileapi AAR as a dependency.
+        // When this issue is fixed, remove this and the dependency declaration on the AAR.
+        // For development, comment out the "include 'mobileapi' line in settings.gradle, then
+        // change the commented-out line in the dependencies section to use the AAR, not the project.
+        flatDir {
+            dirs 'gonative'
+        }
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 28
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+    defaultConfig {
+        minSdkVersion 16
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    // FIXME uncomment this line for development so the Mobileapi classes are visible from Java.
+    // For the test app to work, the dependency on the project must be used instead of on the AAR.
+    //implementation name: 'mobileapi', ext: 'aar'
+    implementation project(':gonative')
+}
